@@ -169,6 +169,8 @@ app.post("/api/v1/createsection", async (req, res) => {
   const sec_month = req.body.sec_month;
   const sec_year = req.body.sec_year;
   const sec_info_id = req.body.sec_info_id;
+  const barber_id = req.body.barber_id;
+  const sec_id = req.body.sec_id;
   try{
       const section =  await db.query(
         "INSERT INTO barberapointment.section (sec_date, sec_month, sec_year, sec_info_id) VALUES (?, ?, ?, ?);",
@@ -176,7 +178,7 @@ app.post("/api/v1/createsection", async (req, res) => {
         );
         const recall_section =  await db.query(
           "select * from barberapointment.section where sec_id=LAST_INSERT_ID();",
-          [sec_date, sec_month, sec_year, sec_info_id],
+
           (err, results) =>{
             if (err) throw err;
             console.log(results);
@@ -186,10 +188,95 @@ app.post("/api/v1/createsection", async (req, res) => {
             });
           }
           );
+          // const insert_appointment_barber =  await db.query(
+          //   "INSERT INTO barberapointment.apointment (barber_id, sec_id) VALUES (?, ?);",
+          //   [barber_id, sec_id],
+          //   (err, results) =>{
+          //     if (err) throw err;
+          //     console.log(results);
+          //     res.status(200).json({
+          //       status: "success",
+          //       data: results,
+          //     });
+          //   }
+          //   );
       } catch (err) {
         console.log(err);
         }
       });
+
+
+//barber confirm available time
+app.post("/api/v1/confirmsection", async (req, res) => {
+  console.log(req.body);
+  const sec_date = req.body.sec_date;
+  const sec_month = req.body.sec_month;
+  const sec_year = req.body.sec_year;
+  const sec_info_id = req.body.sec_info_id;
+  const barber_id = req.body.barber_id;
+  const sec_id = req.body.sec_id;
+  const apointment_id = req.body.sec_id
+  try{
+
+          const insert_appointment_barber =  await db.query(
+            "INSERT INTO barberapointment.apointment (barber_id, sec_id) VALUES (?, ?);",
+            [barber_id, sec_id],
+            );
+            const recall_section =  await db.query(
+              "select * from barberapointment.apointment where apointment_id=LAST_INSERT_ID();",
+
+              (err, results) =>{
+                if (err) throw err;
+                console.log(results);
+                res.status(200).json({
+                  status: "success",
+                  data: results,
+                });
+              }
+              );
+
+      } catch (err) {
+        console.log(err);
+        }
+      });
+//customer take the section
+app.post("/api/v1/takesection", async (req, res) => {
+  console.log(req.body);
+  const sec_date = req.body.sec_date;
+  const sec_month = req.body.sec_month;
+  const sec_year = req.body.sec_year;
+  const sec_info_id = req.body.sec_info_id;
+  const barber_id = req.body.barber_id;
+  const sec_id = req.body.sec_id;
+  const apointment_id = req.body.apointment_id;
+  const customer_id = req.body.customer_id;
+  try{
+
+          const itake_appointment_barber =  await db.query(
+            "UPDATE barberapointment.apointment SET customer_id = ? WHERE apointment_id = ?;",
+            [customer_id, apointment_id ]);
+            
+
+
+          
+            const register_for_section =  await db.query(
+              "select * from `barberapointment`.`apointment` where `apointment_id`= ?;",
+              [apointment_id],
+              (err, results) =>{
+                if (err) throw err;
+                console.log(results);
+                res.status(200).json({
+                  status: "success",
+                  data: results,
+                });
+              }
+              );
+
+      } catch (err) {
+        console.log(err);
+        }
+      });
+
 app.listen(process.env.PORT || PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
