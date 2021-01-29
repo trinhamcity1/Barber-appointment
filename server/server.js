@@ -11,6 +11,81 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
+//login as barber
+app.post("/api/v1/barberlogin", async(req, res) => {
+  const barber_name = req.body.barber_name;
+  const barber_password = req.body.barber_password;
+  try {
+  const login = await db.query(
+    "SELECT * FROM barberapointment.barber WHERE barber_name = ? AND barber_password = ?",
+    [barber_name, barber_password],
+    (err, results) => {
+      if (err) {
+        res.status(200).json({
+          status: "there is an error",
+          results,
+        });
+        console.log({ err: err });
+      }
+
+      if (results.length > 0) {
+        console.log(results)
+        res.status(200).json({
+          status: "success barber login",
+          results,
+        });
+      } else {
+        res.status(200).json({
+          status: "Wrong barber login name or password!",
+          results,
+        });
+        console.log({ message: "Wrong barber login name or password!" });
+      }
+    }
+  );
+  }catch (err) {
+    console.log(err);
+    }
+});
+
+//login as customer
+app.post("/api/v1/customerlogin", async(req, res) => {
+  const customer_name = req.body.customer_name;
+  const customer_password = req.body.customer_password;
+  try {
+  const login = await db.query(
+    "SELECT * FROM barberapointment.customer WHERE customer_name = ? AND customer_password = ?",
+    [customer_name, customer_password],
+    (err, results) => {
+      if (err) {
+        res.status(200).json({
+          status: "there is an error",
+          results,
+        });
+        console.log({ err: err });
+      }
+
+      if (results.length > 0) {
+        console.log(results)
+        res.status(200).json({
+          status: "success customer login",
+          results,
+        });
+      } else {
+        res.status(200).json({
+          status: "Wrong customer login name or password!",
+          results,
+        });
+        console.log({ message: "Wrong customer login name or password!" });
+      }
+    }
+  );
+  }catch (err) {
+    console.log(err);
+    }
+});
+
+
 // get all barber
 app.get("/barber", (req, res) => {
     const sql = "SELECT * FROM barberapointment.barber;";
@@ -24,6 +99,97 @@ app.get("/barber", (req, res) => {
     });
   });
 
+// get all customer
+app.get("/customer", (req, res) => {
+  const sql = "select * from barberapointment.customer;";
+  const query = db.query(sql, (err, results) => {
+    if (err) throw err;
+    console.log(results);
+    res.status(200).json({
+      status: "success",
+      results,
+    });
+  });
+});
+//create a barber 
+app.post("/api/v1/createbarber", async (req, res) => {
+  console.log(req.body);
+  const barber_name = req.body.barber_name;
+  const barber_password = req.body.barber_password;
+  try{
+      const barber =  await db.query(
+        "INSERT INTO barberapointment.barber (barber_name, barber_password) VALUES (?, ?);",
+        [barber_name, barber_password],
+        (err, results) =>{
+          if (err) {
+            res.status(200).json({
+              status: "Your username was already chosen",
+              data: results,
+            });
+            console.log({ message: "Your username was already chosen" });
+          };
+          console.log(results);
+          res.status(200).json({
+            status: "success",
+            data: results,
+          });
+          
+        });
+      } catch (err) {
+        console.log(err);
+        }
+      });
+
+  //create a customer 
+app.post("/api/v1/createcustomer", async (req, res) => {
+  console.log(req.body);
+  const customer_name = req.body.customer_name;
+  const customer_password = req.body.customer_password;
+  try{
+      const barber =  await db.query(
+        "INSERT INTO barberapointment.customer (customer_name, customer_password) VALUES (?, ?);",
+        [customer_name, customer_password],
+        (err, results) =>{
+          if (err) throw err;
+          console.log(results);
+          res.status(200).json({
+            status: "success",
+            data: results,
+          });
+        });
+      } catch (err) {
+        console.log(err);
+        }
+      });
+
+//barber give out his schedule
+app.post("/api/v1/createsection", async (req, res) => {
+  console.log(req.body);
+  const sec_date = req.body.sec_date;
+  const sec_month = req.body.sec_month;
+  const sec_year = req.body.sec_year;
+  const sec_info_id = req.body.sec_info_id;
+  try{
+      const section =  await db.query(
+        "INSERT INTO barberapointment.section (sec_date, sec_month, sec_year, sec_info_id) VALUES (?, ?, ?, ?);",
+        [sec_date, sec_month, sec_year, sec_info_id],
+        );
+        const recall_section =  await db.query(
+          "select * from barberapointment.section where sec_id=LAST_INSERT_ID();",
+          [sec_date, sec_month, sec_year, sec_info_id],
+          (err, results) =>{
+            if (err) throw err;
+            console.log(results);
+            res.status(200).json({
+              status: "success",
+              data: results,
+            });
+          }
+          );
+      } catch (err) {
+        console.log(err);
+        }
+      });
 app.listen(process.env.PORT || PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
