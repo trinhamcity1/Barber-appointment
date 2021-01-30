@@ -5,7 +5,7 @@ import { useParams, useHistory } from 'react-router-dom';
 const LoginOrSignup = () => {
     let history = useHistory()
     const handleSubmit = (e) =>{
-                history.push(`/customerslogin`);
+ history.push(`/customerslogin`);               
         };
     return (
         <div>
