@@ -1,16 +1,17 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React from 'react';
 
-import { useParams, useHistory } from 'react-router-dom';
+import { Link }   from 'react-router-dom';
 
 const LoginOrSignup = () => {
-    let history = useHistory()
-    const handleSubmit = (e) =>{
- history.push(`/customerslogin`);               
-        };
+
     return (
         <div>
-                        <button className="btn btn-warning">Login As barbers</button>
-                        <button onClick={(e)=> handleSubmit} className="btn btn-danger">Login As customers</button>
+            <button className="btn btn-warning">Login As barbers</button>
+
+            <Link to="/customerslogin">
+                <button className="btn btn-danger">Login As customers</button>
+            </Link>
+
         </div>
     )
 }
