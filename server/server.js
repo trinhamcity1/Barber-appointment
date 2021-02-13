@@ -5,7 +5,8 @@ const cors = require("cors");
 const app = express();
 const PORT = 3001;
 const morgan = require("morgan");
-
+const bcrypt = require('bcrypt');
+const saltRounds = 10
 app.use(cors());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -30,8 +31,7 @@ app.post("/api/v1/barberlogin", async(req, res) => {
 
       if (results.length > 0) {
         console.log(results)
-        res.status(200).json({
-          status: "success barber login",
+        res.status(201).json({
           results,
         });
       } else {
@@ -52,6 +52,8 @@ app.post("/api/v1/barberlogin", async(req, res) => {
 app.post("/api/v1/customerlogin", async(req, res) => {
   const customer_name = req.body.customer_name;
   const customer_password = req.body.customer_password;
+
+  
   try {
   const login = await db.query(
     "SELECT * FROM barberapointment.customer WHERE customer_name = ? AND customer_password = ?",
@@ -68,11 +70,10 @@ app.post("/api/v1/customerlogin", async(req, res) => {
       if (results.length > 0) {
         console.log(results)
         res.status(200).json({
-          status: "success customer login",
           results,
         });
       } else {
-        res.status(200).json({
+        res.status(201).json({
           status: "Wrong customer login name or password!",
           results,
         });
@@ -141,14 +142,17 @@ app.post("/api/v1/createbarber", async (req, res) => {
       });
 
   //create a customer 
-app.post("/api/v1/createcustomer", async (req, res) => {
+app.post("/api/v1/createcustomer",  (req, res) => {
   console.log(req.body);
   const customer_name = req.body.customer_name;
   const customer_password = req.body.customer_password;
-  try{
-      const barber =  await db.query(
+
+
+bcrypt.hash(customer_password, saltRounds, (err, hash)=>{
+
+      const barber =  db.query(
         "INSERT INTO barberapointment.customer (customer_name, customer_password) VALUES (?, ?);",
-        [customer_name, customer_password],
+        [customer_name, hash],
         (err, results) =>{
           if (err) throw err;
           console.log(results);
@@ -157,9 +161,11 @@ app.post("/api/v1/createcustomer", async (req, res) => {
             data: results,
           });
         });
-      } catch (err) {
-        console.log(err);
-        }
+  
+})
+
+ 
+
       });
 
 //barber give out his schedule

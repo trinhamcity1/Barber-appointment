@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {BrowserRouter as Router, Switch, Route} from "react-router-dom";
 import CustomersLogin from './components/CustomersLogin';
 import { BarberApContext, BarberApContextProvider } from './context/BarberApContext';
@@ -6,6 +6,8 @@ import Home from "./routes/Home";
 import Login from "./routes/Login";
 import Signup from "./routes/Signup";
 const App = () => {
+
+
     return (
         <BarberApContextProvider>
     <div>
